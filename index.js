@@ -49,18 +49,7 @@ if (message.content.startsWith('!proffs')) {
   const args = message.content.trim().split(/\s+/);
   const numero = parseInt(args[1], 10);
 
-  if (Number.isNaN(numero) || numero <= 0) {
-    return message.reply('❌ Use assim: !proffs 20');
-  }
-
-  quantidadeProffs = numero;
-
-  try {
-    await message.delete();
-    console.log('✅ Comando apagado com sucesso');
-  } catch (err) {
-    console.error('❌ Erro ao apagar o comando:', err);
-  }
+ 
 
   const resposta = await message.channel.send(`✅ Agora está em ${quantidadeProffs} proffs`);
 
