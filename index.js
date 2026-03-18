@@ -9,10 +9,9 @@ const client = new Client({
 });
 
 let quantidadeProffs = 10;
-
 const canalPermitido = '1482160162679554101';
 
-client.once('clientReady', () => {
+client.once('ready', () => {
   console.log(`✅ Bot online como ${client.user.tag}`);
 });
 
@@ -20,7 +19,6 @@ client.on('messageCreate', async (message) => {
   try {
     if (message.author.bot) return;
 
-    // Aceita no canal permitido e também em thread/post desse canal
     const canalAtual = message.channel.id;
     const canalPai = message.channel.parentId;
 
@@ -28,50 +26,41 @@ client.on('messageCreate', async (message) => {
       return;
     }
 
-    // Comando: !proffs 20
- if (message.content.startsWith('!proffs')) {
-  const args = message.content.trim().split(/\s+/);
-  const numero = parseInt(args[1], 10);
+    if (message.content.startsWith('!proofs')) {
+      const args = message.content.trim().split(/\s+/);
+      const numero = parseInt(args[1], 10);
 
-  if (Number.isNaN(numero) || numero <= 0) {
-    return message.reply('❌ Use assim: !proffs 20');
-  }
+      if (Number.isNaN(numero) || numero <= 0) {
+        return message.reply('❌ Use assim: !proofs 20');
+      }
 
-  quantidadeProffs = numero;
+      quantidadeProffs = numero;
 
-  try {
-    await message.delete();
-  } catch (err) {
-    console.log('Não consegui apagar a mensagem do comando.');
-  }
+      try {
+        await message.delete();
+      } catch (err) {
+        console.log('Não consegui apagar a mensagem do comando.');
+      }
 
-if (message.content.startsWith('!proffs')) {
-  const args = message.content.trim().split(/\s+/);
-  const numero = parseInt(args[1], 10);
+      const resposta = await message.channel.send(`✅ Agora está em ${quantidadeProffs} proofs`);
 
- 
+      setTimeout(() => {
+        resposta.delete().catch((err) => {
+          console.error('❌ Erro ao apagar a resposta do bot:', err);
+        });
+      }, 3000);
 
-  const resposta = await message.channel.send(`✅ Agora está em ${quantidadeProffs} proffs`);
+      return;
+    }
 
-  setTimeout(() => {
-    resposta.delete().catch((err) => {
-      console.error('❌ Erro ao apagar a resposta do bot:', err);
+    const imagens = message.attachments.filter(att => {
+      return (
+        att.contentType?.startsWith('image/') ||
+        /\.(png|jpe?g|gif|webp)$/i.test(att.name || '')
+      );
     });
-  }, 3000);
 
-  return;
-}
-}
-
-    // Só reage se tiver anexo
- const imagens = message.attachments.filter(att => {
-  return (
-    att.contentType?.startsWith('image/') ||
-    /\.(png|jpe?g|gif|webp)$/i.test(att.name || '')
-  );
-});
-
-if (imagens.size === 0) return;
+    if (imagens.size === 0) return;
 
     const texto = `
 # <:w_boxx:1482571087874228395> PROOF #${quantidadeProffs} <a:white_mydarling1:1483742901719531570> ʾ  ֶָ֪  ۫
@@ -82,18 +71,18 @@ if (imagens.size === 0) return;
 
     await message.channel.send({
       content: texto,
-files: imagens.map(img => img.url)
+      files: imagens.map(img => img.url)
     });
-    
+
     try {
-  await message.delete();
-  console.log('✅ Mensagem com imagens apagada');
-} catch (err) {
-  console.error('❌ Erro ao apagar a mensagem com imagens:', err);
-}
+      await message.delete();
+      console.log('✅ Mensagem com imagens apagada');
+    } catch (err) {
+      console.error('❌ Erro ao apagar a mensagem com imagens:', err);
+    }
   } catch (error) {
     console.error('Erro ao processar mensagem:', error);
   }
 });
 
-client.login(process.env.TOKEN);
+client.login(process.env.DISCORD_TOKEN);
